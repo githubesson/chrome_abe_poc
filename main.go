@@ -40,6 +40,8 @@ type Cookie struct {
 	Host  string
 	Name  string
 	Value string
+	Path string
+	Expire string
 }
 
 func enablePrivilege() error {
@@ -322,7 +324,7 @@ func getCookies(key []byte) ([]Cookie, error) {
 	defer db.Close()
 
 	// query cookie db
-	rows, err := db.Query(`SELECT host_key, name, CAST(encrypted_value AS BLOB) from cookies`)
+	rows, err := db.Query(`SELECT host_key, name, CAST(encrypted_value AS BLOB), path, expires_utc from cookies`)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query database: %v", err)
 	}
@@ -337,6 +339,8 @@ func getCookies(key []byte) ([]Cookie, error) {
 			&cookie.Host,
 			&cookie.Name,
 			&encryptedValue,
+			&cookie.Path, 
+			&cookie.Expire
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan row: %v", err)
@@ -378,6 +382,8 @@ func main() {
 		fmt.Printf("\nHost: %s\n", cookie.Host)
 		fmt.Printf("Name: %s\n", cookie.Name)
 		fmt.Printf("Value: %s\n", cookie.Value)
+		fmt.Printf("Path: %s\n", cookie.Path)
+		fmt.Printf("Expire: %s\n", cookie.Expire)
 		fmt.Printf("-------------------\n")
 	}
 }
